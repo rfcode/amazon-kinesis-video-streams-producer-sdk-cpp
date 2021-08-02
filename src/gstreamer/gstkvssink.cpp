@@ -101,9 +101,9 @@ GST_DEBUG_CATEGORY_STATIC (gst_kvs_sink_debug);
 #define DEFAULT_TRACKNAME "kinesis_video"
 #define DEFAULT_ACCESS_KEY "access_key"
 #define DEFAULT_SECRET_KEY "secret_key"
-#define DEFAULT_REGION "us-west-2"
+#define DEFAULT_REGION "us-east-2"
 #define DEFAULT_ROTATION_PERIOD_SECONDS 3600
-#define DEFAULT_LOG_FILE_PATH "./kvs_log_configuration"
+#define DEFAULT_LOG_FILE_PATH "/opt/amazon-kinesis-video-streams-producer-sdk-cpp/samples/kvs_log_configuration"
 #define DEFAULT_STORAGE_SIZE_MB 128
 #define DEFAULT_CREDENTIAL_FILE_PATH ".kvs/credential"
 #define DEFAULT_FRAME_DURATION_MS 2
@@ -585,7 +585,7 @@ gst_kvs_sink_class_init(GstKvsSinkClass *klass) {
     gstelement_class->release_pad = GST_DEBUG_FUNCPTR (gst_kvs_sink_release_pad);
 
     LOGGER_TAG("com.amazonaws.kinesis.video.gstkvs");
-    LOG_CONFIGURE_STDOUT("WARN")
+    //LOG_CONFIGURE_STDOUT("WARN")
     LOG_DEBUG("FINISHED gst_kvs_sink_class_init");
 }
 
@@ -641,7 +641,7 @@ gst_kvs_sink_init(GstKvsSink *kvssink) {
     GST_OBJECT_FLAG_SET (kvssink, GST_ELEMENT_FLAG_SINK);
 
     LOGGER_TAG("com.amazonaws.kinesis.video.gstkvs");
-    LOG_CONFIGURE_STDOUT("WARN")
+    //LOG_CONFIGURE_STDOUT("WARN")
 }
 
 static void
