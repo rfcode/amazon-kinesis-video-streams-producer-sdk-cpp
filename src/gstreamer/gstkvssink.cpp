@@ -583,6 +583,10 @@ gst_kvs_sink_class_init(GstKvsSinkClass *klass) {
     gstelement_class->change_state = GST_DEBUG_FUNCPTR (gst_kvs_sink_change_state);
     gstelement_class->request_new_pad = GST_DEBUG_FUNCPTR (gst_kvs_sink_request_new_pad);
     gstelement_class->release_pad = GST_DEBUG_FUNCPTR (gst_kvs_sink_release_pad);
+
+    LOGGER_TAG("com.amazonaws.kinesis.video.gstkvs");
+    LOG_CONFIGURE_STDOUT("WARN")
+    LOG_DEBUG("FINISHED gst_kvs_sink_class_init");
 }
 
 static void
@@ -637,7 +641,7 @@ gst_kvs_sink_init(GstKvsSink *kvssink) {
     GST_OBJECT_FLAG_SET (kvssink, GST_ELEMENT_FLAG_SINK);
 
     LOGGER_TAG("com.amazonaws.kinesis.video.gstkvs");
-    LOG_CONFIGURE_STDOUT("DEBUG")
+    LOG_CONFIGURE_STDOUT("WARN")
 }
 
 static void
@@ -1270,6 +1274,7 @@ init_track_data(GstKvsSink *kvssink) {
     gchar *video_content_type = NULL, *audio_content_type = NULL;
     const gchar *media_type;
 
+    LOG_DEBUG("init_track_data - START");
     for (walk = kvssink->collect->data; walk != NULL; walk = g_slist_next (walk)) {
         GstKvsSinkTrackData *kvs_sink_track_data = (GstKvsSinkTrackData *) walk->data;
 
@@ -1341,6 +1346,8 @@ init_track_data(GstKvsSink *kvssink) {
 
     g_free(video_content_type);
     g_free(audio_content_type);
+
+    LOG_DEBUG("init_track_data - FINISH");
 }
 
 static GstStateChangeReturn
@@ -1351,8 +1358,10 @@ gst_kvs_sink_change_state(GstElement *element, GstStateChange transition) {
     string err_msg = "";
     ostringstream oss;
 
+    LOG_DEBUG("gst_kvs_sink_change_state - START");
     switch (transition) {
         case GST_STATE_CHANGE_NULL_TO_READY:
+            LOG_DEBUG("gst_kvs_sink_change_state - GST_STATE_CHANGE_NULL_TO_READY");
             log4cplus::initialize();
             log4cplus::PropertyConfigurator::doConfigure(kvssink->log_config_path);
             try {
@@ -1365,21 +1374,29 @@ gst_kvs_sink_change_state(GstElement *element, GstStateChange transition) {
                 oss << "Failed to init kvs producer. Error: " << err.what();
                 err_msg = oss.str();
                 ret = GST_STATE_CHANGE_FAILURE;
+                LOG_DEBUG("gst_kvs_sink_change_state - GST_STATE_CHANGE_FAILURE");
                 goto CleanUp;
             }
 
             if (!kinesis_video_stream_init(kvssink, err_msg)) {
                 ret = GST_STATE_CHANGE_FAILURE;
+                LOG_DEBUG("gst_kvs_sink_change_state - kinesis_video_stream_init failed");
                 goto CleanUp;
             }
             break;
         case GST_STATE_CHANGE_READY_TO_PAUSED:
+            LOG_DEBUG("gst_kvs_sink_change_state - GST_STATE_CHANGE_READY_TO_PAUSED");
             gst_collect_pads_start (kvssink->collect);
             break;
         case GST_STATE_CHANGE_PAUSED_TO_READY:
+            LOG_DEBUG("gst_kvs_sink_change_state - GST_STATE_CHANGE_PAUSED_TO_READY");
             gst_collect_pads_stop (kvssink->collect);
             break;
+        case GST_STATE_CHANGE_PAUSED_TO_PLAYING:
+            LOG_DEBUG("gst_kvs_sink_change_state - GST_STATE_CHANGE_PAUSED_TO_PLAYING");
+            break;
         default:
+            LOG_DEBUG("gst_kvs_sink_change_state - ???");
             break;
     }
 
@@ -1389,6 +1406,16 @@ CleanUp:
 
     if (ret != GST_STATE_CHANGE_SUCCESS) {
         GST_ELEMENT_ERROR (kvssink, LIBRARY, INIT, (NULL), ("%s", err_msg.c_str()));
+    }
+
+    if (GST_STATE_CHANGE_SUCCESS == ret)
+    {
+        LOG_DEBUG("gst_kvs_sink_change_state - FINISH SUCCESS");
+    }
+
+    if (GST_STATE_CHANGE_FAILURE == ret)
+    {
+        LOG_DEBUG("gst_kvs_sink_change_state - FINISH FAILURE");
     }
 
     return ret;

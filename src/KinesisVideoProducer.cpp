@@ -42,6 +42,7 @@ unique_ptr<KinesisVideoProducer> KinesisVideoProducer::create(
     // Create the producer object
     std::unique_ptr<KinesisVideoProducer> kinesis_video_producer(new KinesisVideoProducer());
 
+    LOG_DEBUG("KinesisVideoProducer::create()")
     auto callbacks = callback_provider->getCallbacks();
 
     STATUS status = createKinesisVideoClient(&device_info, &callbacks, &client_handle);
@@ -68,6 +69,7 @@ unique_ptr<KinesisVideoProducer> KinesisVideoProducer::createSync(
         bool is_caching_endpoint,
         uint64_t caching_update_period) {
 
+    LOG_DEBUG("KinesisVideoProducer::createSync() 1")
     unique_ptr<DefaultCallbackProvider> callback_provider(new DefaultCallbackProvider(move(client_callback_provider),
             move(stream_callback_provider),
             move(credential_provider),
@@ -92,6 +94,7 @@ unique_ptr<KinesisVideoProducer> KinesisVideoProducer::createSync(
     // Create the producer object
     std::unique_ptr<KinesisVideoProducer> kinesis_video_producer(new KinesisVideoProducer());
 
+    LOG_DEBUG("KinesisVideoProducer::createSync() 2")
     auto callbacks = callback_provider->getCallbacks();
 
     STATUS status = createKinesisVideoClientSync(&device_info, &callbacks, &client_handle);
@@ -110,6 +113,7 @@ unique_ptr<KinesisVideoProducer> KinesisVideoProducer::createSync(
 shared_ptr<KinesisVideoStream> KinesisVideoProducer::createStream(unique_ptr<StreamDefinition> stream_definition) {
     assert(stream_definition.get());
 
+    LOG_DEBUG("KinesisVideoProducer::createStream()")
     if (stream_definition->getTrackCount() > MAX_SUPPORTED_TRACK_COUNT_PER_STREAM) {
         LOG_AND_THROW("Exceeded maximum track count: " + std::to_string(MAX_SUPPORTED_TRACK_COUNT_PER_STREAM));
     }
@@ -134,6 +138,7 @@ shared_ptr<KinesisVideoStream> KinesisVideoProducer::createStreamSync(unique_ptr
 
     assert(stream_definition.get());
 
+    LOG_DEBUG("KinesisVideoProducer::createStreamSync()")
     if (stream_definition->getTrackCount() > MAX_SUPPORTED_TRACK_COUNT_PER_STREAM) {
         LOG_AND_THROW("Exceeded maximum track count: " + std::to_string(MAX_SUPPORTED_TRACK_COUNT_PER_STREAM));
     }

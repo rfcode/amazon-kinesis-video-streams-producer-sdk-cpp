@@ -19,15 +19,21 @@ KvsSinkStreamCallbackProvider::streamErrorReportHandler(UINT64 custom_data,
                                                         UPLOAD_HANDLE upload_handle,
                                                         UINT64 errored_timecode,
                                                         STATUS status_code) {
-    LOG_ERROR("Reported stream error. Errored timecode: " << errored_timecode << " Status: 0x" << std::hex << status_code);
+    LOG_ERROR("MM - Reported stream error. Errored timecode: " << errored_timecode << " Status: 0x" << std::hex << status_code);
     auto customDataObj = reinterpret_cast<KvsSinkCustomData*>(custom_data);
 
     // ignore if the sdk can recover from the error
     if (!IS_RECOVERABLE_ERROR(status_code)) {
+        LOG_ERROR("MM - Setting stream status code to 0x" << std::hex << status_code);
         customDataObj->stream_status = status_code;
     }
+    else
+    {
+        LOG_ERROR("MM - Must have been recoverable");
+    }
 
-    return STATUS_SUCCESS;
+    //return STATUS_SUCCESS;
+    return status_code;
 }
 
 STATUS
