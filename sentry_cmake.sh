@@ -1,0 +1,3 @@
+mkdir -p build
+cd build
+cmake .. -DBUILD_GSTREAMER_PLUGIN=ON -DBUILD_DEPENDENCIES=OFF
